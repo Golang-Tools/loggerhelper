@@ -52,59 +52,122 @@ func Init(loglevel string, defaultField map[string]interface{}) {
 
 //Trace 默认log打印Trace级别信息
 func Trace(fields map[string]interface{}, args ...interface{}) {
-	if fields == nil {
-		defaultlog.Trace(args...)
+	if defaultlog == nil {
+		if fields == nil {
+			Logger.Trace(args...)
+		} else {
+			Logger.WithFields(fields).Trace(args...)
+		}
 	} else {
-		defaultlog.WithFields(fields).Trace(args...)
+		if fields == nil {
+			defaultlog.Trace(args...)
+		} else {
+			defaultlog.WithFields(fields).Trace(args...)
+		}
 	}
+
 }
 
 //Debug 默认log打印Debug级别信息
 func Debug(fields map[string]interface{}, args ...interface{}) {
-	if fields == nil {
-		defaultlog.Debug(args...)
+	if defaultlog == nil {
+		if fields == nil {
+			Logger.Debug(args...)
+		} else {
+			Logger.WithFields(fields).Debug(args...)
+		}
 	} else {
-		defaultlog.WithFields(fields).Debug(args...)
+		if fields == nil {
+			defaultlog.Debug(args...)
+		} else {
+			defaultlog.WithFields(fields).Debug(args...)
+		}
 	}
 }
 
 //Info 默认log打印Info级别信息
 func Info(fields map[string]interface{}, args ...interface{}) {
-	defaultlog.WithFields(fields).Info(args...)
+	if defaultlog == nil {
+		if fields == nil {
+			Logger.Info(args...)
+		} else {
+			Logger.WithFields(fields).Info(args...)
+		}
+	} else {
+		if fields == nil {
+			defaultlog.Info(args...)
+		} else {
+			defaultlog.WithFields(fields).Info(args...)
+		}
+	}
 }
 
 //Warn 默认log打印Warn级别信息
 func Warn(fields map[string]interface{}, args ...interface{}) {
-	if fields == nil {
-		defaultlog.Warn(args...)
+	if defaultlog == nil {
+		if fields == nil {
+			Logger.Warn(args...)
+		} else {
+			Logger.WithFields(fields).Warn(args...)
+		}
 	} else {
-		defaultlog.WithFields(fields).Warn(args...)
+		if fields == nil {
+			defaultlog.Warn(args...)
+		} else {
+			defaultlog.WithFields(fields).Warn(args...)
+		}
 	}
 }
 
 //Error 默认log打印Error级别信息
 func Error(fields map[string]interface{}, args ...interface{}) {
-	if fields == nil {
-		defaultlog.Error(args...)
+	if defaultlog == nil {
+		if fields == nil {
+			Logger.Error(args...)
+		} else {
+			Logger.WithFields(fields).Error(args...)
+		}
 	} else {
-		defaultlog.WithFields(fields).Error(args...)
+		if fields == nil {
+			defaultlog.Error(args...)
+		} else {
+			defaultlog.WithFields(fields).Error(args...)
+		}
 	}
+
 }
 
 //Fatal 默认log打印Fatal级别信息
 func Fatal(fields map[string]interface{}, args ...interface{}) {
-	if fields == nil {
-		defaultlog.Fatal(args...)
+	if defaultlog == nil {
+		if fields == nil {
+			Logger.Fatal(args...)
+		} else {
+			Logger.WithFields(fields).Fatal(args...)
+		}
 	} else {
-		defaultlog.WithFields(fields).Fatal(args...)
+		if fields == nil {
+			defaultlog.Fatal(args...)
+		} else {
+			defaultlog.WithFields(fields).Fatal(args...)
+		}
 	}
+
 }
 
 //Panic 默认log打印Panic级别信息
 func Panic(fields map[string]interface{}, args ...interface{}) {
-	if fields == nil {
-		defaultlog.Panic(args...)
+	if defaultlog == nil {
+		if fields == nil {
+			Logger.Panic(args...)
+		} else {
+			Logger.WithFields(fields).Panic(args...)
+		}
 	} else {
-		defaultlog.WithFields(fields).Panic(args...)
+		if fields == nil {
+			defaultlog.Panic(args...)
+		} else {
+			defaultlog.WithFields(fields).Panic(args...)
+		}
 	}
 }
