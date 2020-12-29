@@ -54,123 +54,295 @@ func Init(loglevel string, defaultField map[string]interface{}) {
 }
 
 //Trace 默认log打印Trace级别信息
-func Trace(fields map[string]interface{}, args ...interface{}) {
+//@params message string 事件消息
+//@params fields ...map[string]interface{} 信息字段
+func Trace(message string, fields ...map[string]interface{}) {
+	fieldlen := len(fields)
 	if defaultlog == nil {
-		if fields == nil {
-			Logger.Trace(args...)
-		} else {
-			Logger.WithFields(fields).Trace(args...)
+		switch fieldlen {
+		case 0:
+			{
+				Logger.Trace(message)
+			}
+		case 1:
+			{
+				Logger.WithFields(fields[0]).Trace(message)
+			}
+		default:
+			{
+				l := Logger.WithFields(fields[0])
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Trace(message)
+			}
 		}
 	} else {
-		if fields == nil {
-			defaultlog.Trace(args...)
-		} else {
-			defaultlog.WithFields(fields).Trace(args...)
+		switch fieldlen {
+		case 0:
+			{
+				defaultlog.Trace(message)
+			}
+		default:
+			{
+				l := defaultlog
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Trace(message)
+			}
 		}
 	}
-
 }
 
 //Debug 默认log打印Debug级别信息
-func Debug(fields map[string]interface{}, args ...interface{}) {
+//@params message string 事件消息
+//@params fields ...map[string]interface{} 信息字段
+func Debug(message string, fields ...map[string]interface{}) {
+	fieldlen := len(fields)
 	if defaultlog == nil {
-		if fields == nil {
-			Logger.Debug(args...)
-		} else {
-			Logger.WithFields(fields).Debug(args...)
+		switch fieldlen {
+		case 0:
+			{
+				Logger.Debug(message)
+			}
+		case 1:
+			{
+				Logger.WithFields(fields[0]).Debug(message)
+			}
+		default:
+			{
+				l := Logger.WithFields(fields[0])
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Debug(message)
+			}
 		}
 	} else {
-		if fields == nil {
-			defaultlog.Debug(args...)
-		} else {
-			defaultlog.WithFields(fields).Debug(args...)
+		switch fieldlen {
+		case 0:
+			{
+				defaultlog.Debug(message)
+			}
+		default:
+			{
+				l := defaultlog
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Debug(message)
+			}
 		}
 	}
 }
 
 //Info 默认log打印Info级别信息
-func Info(fields map[string]interface{}, args ...interface{}) {
+//@params message string 事件消息
+//@params fields ...map[string]interface{} 信息字段
+func Info(message string, fields ...map[string]interface{}) {
+	fieldlen := len(fields)
 	if defaultlog == nil {
-		if fields == nil {
-			Logger.Info(args...)
-		} else {
-			Logger.WithFields(fields).Info(args...)
+		switch fieldlen {
+		case 0:
+			{
+				Logger.Info(message)
+			}
+		case 1:
+			{
+				Logger.WithFields(fields[0]).Info(message)
+			}
+		default:
+			{
+				l := Logger.WithFields(fields[0])
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Info(message)
+			}
 		}
 	} else {
-		if fields == nil {
-			defaultlog.Info(args...)
-		} else {
-			defaultlog.WithFields(fields).Info(args...)
+		switch fieldlen {
+		case 0:
+			{
+				defaultlog.Info(message)
+			}
+		default:
+			{
+				l := defaultlog
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Info(message)
+			}
 		}
 	}
 }
 
 //Warn 默认log打印Warn级别信息
-func Warn(fields map[string]interface{}, args ...interface{}) {
+//@params message string 事件消息
+//@params fields ...map[string]interface{} 信息字段
+func Warn(message string, fields ...map[string]interface{}) {
+	fieldlen := len(fields)
 	if defaultlog == nil {
-		if fields == nil {
-			Logger.Warn(args...)
-		} else {
-			Logger.WithFields(fields).Warn(args...)
+		switch fieldlen {
+		case 0:
+			{
+				Logger.Warn(message)
+			}
+		case 1:
+			{
+				Logger.WithFields(fields[0]).Warn(message)
+			}
+		default:
+			{
+				l := Logger.WithFields(fields[0])
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Warn(message)
+			}
 		}
 	} else {
-		if fields == nil {
-			defaultlog.Warn(args...)
-		} else {
-			defaultlog.WithFields(fields).Warn(args...)
+		switch fieldlen {
+		case 0:
+			{
+				defaultlog.Warn(message)
+			}
+		default:
+			{
+				l := defaultlog
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Warn(message)
+			}
 		}
 	}
 }
 
 //Error 默认log打印Error级别信息
-func Error(fields map[string]interface{}, args ...interface{}) {
+//@params message string 事件消息
+//@params fields ...map[string]interface{} 信息字段
+func Error(message string, fields ...map[string]interface{}) {
+	fieldlen := len(fields)
 	if defaultlog == nil {
-		if fields == nil {
-			Logger.Error(args...)
-		} else {
-			Logger.WithFields(fields).Error(args...)
+		switch fieldlen {
+		case 0:
+			{
+				Logger.Error(message)
+			}
+		case 1:
+			{
+				Logger.WithFields(fields[0]).Error(message)
+			}
+		default:
+			{
+				l := Logger.WithFields(fields[0])
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Error(message)
+			}
 		}
 	} else {
-		if fields == nil {
-			defaultlog.Error(args...)
-		} else {
-			defaultlog.WithFields(fields).Error(args...)
+		switch fieldlen {
+		case 0:
+			{
+				defaultlog.Error(message)
+			}
+		default:
+			{
+				l := defaultlog
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Error(message)
+			}
 		}
 	}
-
 }
 
 //Fatal 默认log打印Fatal级别信息
-func Fatal(fields map[string]interface{}, args ...interface{}) {
+//@params message string 事件消息
+//@params fields ...map[string]interface{} 信息字段
+func Fatal(message string, fields ...map[string]interface{}) {
+	fieldlen := len(fields)
 	if defaultlog == nil {
-		if fields == nil {
-			Logger.Fatal(args...)
-		} else {
-			Logger.WithFields(fields).Fatal(args...)
+		switch fieldlen {
+		case 0:
+			{
+				Logger.Fatal(message)
+			}
+		case 1:
+			{
+				Logger.WithFields(fields[0]).Fatal(message)
+			}
+		default:
+			{
+				l := Logger.WithFields(fields[0])
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Fatal(message)
+			}
 		}
 	} else {
-		if fields == nil {
-			defaultlog.Fatal(args...)
-		} else {
-			defaultlog.WithFields(fields).Fatal(args...)
+		switch fieldlen {
+		case 0:
+			{
+				defaultlog.Fatal(message)
+			}
+		default:
+			{
+				l := defaultlog
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Fatal(message)
+			}
 		}
 	}
-
 }
 
 //Panic 默认log打印Panic级别信息
-func Panic(fields map[string]interface{}, args ...interface{}) {
+//@params message string 事件消息
+//@params fields ...map[string]interface{} 信息字段
+func Panic(message string, fields ...map[string]interface{}) {
+	fieldlen := len(fields)
 	if defaultlog == nil {
-		if fields == nil {
-			Logger.Panic(args...)
-		} else {
-			Logger.WithFields(fields).Panic(args...)
+		switch fieldlen {
+		case 0:
+			{
+				Logger.Panic(message)
+			}
+		case 1:
+			{
+				Logger.WithFields(fields[0]).Panic(message)
+			}
+		default:
+			{
+				l := Logger.WithFields(fields[0])
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Panic(message)
+			}
 		}
 	} else {
-		if fields == nil {
-			defaultlog.Panic(args...)
-		} else {
-			defaultlog.WithFields(fields).Panic(args...)
+		switch fieldlen {
+		case 0:
+			{
+				defaultlog.Panic(message)
+			}
+		default:
+			{
+				l := defaultlog
+				for _, field := range fields[1:] {
+					l = l.WithFields(field)
+				}
+				l.Panic(message)
+			}
 		}
 	}
 }
