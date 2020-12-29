@@ -11,30 +11,47 @@
 
 ## 基本用法
 
+即便不初始化也可以工作
+
 ```golang
 
 package main
 
 import (
-	log "github.com/Golang-Tools/loggerhelper"
+    log "github.com/Golang-Tools/loggerhelper"
 )
 func main() {
     log.Info("test")
-    log.Warn("qweqwr", log.Dict{"a": 1})
+    log.Warn("qweqwr", log.Dict{"a": 1},log.Dict{"b": 1})
 }
 ```
 
 ## 初始化
 
+初始化可以设置log等级,默认字段的值,输出,以及钩子
+
 ```golang
 
 package main
 
 import (
-	log "github.com/Golang-Tools/loggerhelper"
+    log "github.com/Golang-Tools/loggerhelper"
+    "io/ioutil"
+    "os"
+    "github.com/sirupsen/logrus"
+    "github.com/sirupsen/logrus/hooks/writer"
 )
 func main() {
-    log.Init("WARN",log.Dict{"d":3})
+    hook := writer.Hook{ // Send logs with level higher than warning to stderr
+        Writer: os.Stderr,
+        LogLevels: []logrus.Level{
+            logrus.PanicLevel,
+            logrus.FatalLevel,
+            logrus.ErrorLevel,
+            logrus.WarnLevel,
+        },
+    }
+    log.Init("WARN", log.Dict{"d": 3}, ioutil.Discard, &hook)
     log.Info("test")
     log.Warn("qweqwr", log.Dict{"a": 1})
 }

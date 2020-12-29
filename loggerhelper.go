@@ -2,6 +2,7 @@ package loggerhelper
 
 import (
 	"fmt"
+	"io"
 
 	logrus "github.com/sirupsen/logrus"
 )
@@ -33,7 +34,10 @@ func ParseLevel(loglevel string) logrus.Level {
 }
 
 //SetLog 设置log行为
-func setLog(loglevel string, defaultField map[string]interface{}, hooks ...logrus.Hook) *logrus.Entry {
+func setLog(loglevel string, defaultField map[string]interface{}, output io.Writer, hooks ...logrus.Hook) *logrus.Entry {
+	if output != nil {
+		Logger.SetOutput(output)
+	}
 	Logger.SetFormatter(&logrus.JSONFormatter{
 		FieldMap: logrus.FieldMap{
 			logrus.FieldKeyTime:  "time",
@@ -52,8 +56,8 @@ func setLog(loglevel string, defaultField map[string]interface{}, hooks ...logru
 }
 
 //Init 初始化默认的log对象
-func Init(loglevel string, defaultField map[string]interface{}, hooks ...logrus.Hook) {
-	defaultlog = setLog(loglevel, defaultField, hooks...)
+func Init(loglevel string, defaultField map[string]interface{}, output io.Writer, hooks ...logrus.Hook) {
+	defaultlog = setLog(loglevel, defaultField, output, hooks...)
 }
 
 //Trace 默认log打印Trace级别信息
