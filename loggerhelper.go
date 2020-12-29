@@ -20,7 +20,7 @@ var Logger = New()
 var defaultlog *logrus.Entry
 
 //SetLog 设置log行为
-func setLog(loglevel string, defaultField map[string]interface{}) *logrus.Entry {
+func setLog(loglevel string, defaultField map[string]interface{}, hooks ...logrus.Hook) *logrus.Entry {
 	Logger.SetFormatter(&logrus.JSONFormatter{
 		FieldMap: logrus.FieldMap{
 			logrus.FieldKeyTime:  "time",
@@ -40,6 +40,9 @@ func setLog(loglevel string, defaultField map[string]interface{}) *logrus.Entry 
 		Logger.SetLevel(logrus.WarnLevel)
 	case upperLoglevel == "ERROR":
 		Logger.SetLevel(logrus.ErrorLevel)
+	}
+	for _, hook := range hooks {
+		Logger.Hooks.Add(hook)
 	}
 	log := Logger.WithFields(defaultField)
 	return log

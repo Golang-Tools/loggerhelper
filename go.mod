@@ -1,5 +1,5 @@
-module github.com/Basic-Components/loggerhelper
+module github.com/Golang-Tools/loggerhelper
 
-go 1.13
+go 1.15
 
 require github.com/sirupsen/logrus v1.6.0
