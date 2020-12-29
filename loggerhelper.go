@@ -93,7 +93,7 @@ func Trace(message string, fields ...map[string]interface{}) {
 		default:
 			{
 				l := defaultlog
-				for _, field := range fields[1:] {
+				for _, field := range fields {
 					l = l.WithFields(field)
 				}
 				l.Trace(message)
@@ -135,7 +135,7 @@ func Debug(message string, fields ...map[string]interface{}) {
 		default:
 			{
 				l := defaultlog
-				for _, field := range fields[1:] {
+				for _, field := range fields {
 					l = l.WithFields(field)
 				}
 				l.Debug(message)
@@ -177,7 +177,7 @@ func Info(message string, fields ...map[string]interface{}) {
 		default:
 			{
 				l := defaultlog
-				for _, field := range fields[1:] {
+				for _, field := range fields {
 					l = l.WithFields(field)
 				}
 				l.Info(message)
@@ -219,7 +219,7 @@ func Warn(message string, fields ...map[string]interface{}) {
 		default:
 			{
 				l := defaultlog
-				for _, field := range fields[1:] {
+				for _, field := range fields {
 					l = l.WithFields(field)
 				}
 				l.Warn(message)
@@ -261,7 +261,7 @@ func Error(message string, fields ...map[string]interface{}) {
 		default:
 			{
 				l := defaultlog
-				for _, field := range fields[1:] {
+				for _, field := range fields {
 					l = l.WithFields(field)
 				}
 				l.Error(message)
@@ -303,7 +303,7 @@ func Fatal(message string, fields ...map[string]interface{}) {
 		default:
 			{
 				l := defaultlog
-				for _, field := range fields[1:] {
+				for _, field := range fields {
 					l = l.WithFields(field)
 				}
 				l.Fatal(message)
@@ -345,7 +345,7 @@ func Panic(message string, fields ...map[string]interface{}) {
 		default:
 			{
 				l := defaultlog
-				for _, field := range fields[1:] {
+				for _, field := range fields {
 					l = l.WithFields(field)
 				}
 				l.Panic(message)
