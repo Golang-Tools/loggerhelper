@@ -1,10 +1,13 @@
 package loggerhelper
 
 import (
-	"strings"
+	"fmt"
 
 	logrus "github.com/sirupsen/logrus"
 )
+
+//Dict 简化键值对的写法
+type Dict map[string]interface{}
 
 //New 初始化log的配置
 func New() *logrus.Logger {
@@ -19,6 +22,16 @@ var Logger = New()
 //默认的Log对象
 var defaultlog *logrus.Entry
 
+//ParseLevel 将字符串转为`logrus.Level`,未知的字符串默认匹配为"logrus.DebugLevel"
+func ParseLevel(loglevel string) logrus.Level {
+	level, err := logrus.ParseLevel(loglevel)
+	if err != nil {
+		fmt.Printf("未知的等级`%s`,使用默认值`Debug`\n", loglevel)
+		return logrus.DebugLevel
+	}
+	return level
+}
+
 //SetLog 设置log行为
 func setLog(loglevel string, defaultField map[string]interface{}, hooks ...logrus.Hook) *logrus.Entry {
 	Logger.SetFormatter(&logrus.JSONFormatter{
@@ -28,19 +41,9 @@ func setLog(loglevel string, defaultField map[string]interface{}, hooks ...logru
 			logrus.FieldKeyMsg:   "event",
 			logrus.FieldKeyFunc:  "caller",
 		}})
-	upperLoglevel := strings.ToUpper(loglevel)
-	switch {
-	case upperLoglevel == "TRACE":
-		Logger.SetLevel(logrus.TraceLevel)
-	case upperLoglevel == "DEBUG":
-		Logger.SetLevel(logrus.DebugLevel)
-	case upperLoglevel == "INFO":
-		Logger.SetLevel(logrus.InfoLevel)
-	case upperLoglevel == "WARN":
-		Logger.SetLevel(logrus.WarnLevel)
-	case upperLoglevel == "ERROR":
-		Logger.SetLevel(logrus.ErrorLevel)
-	}
+
+	level := ParseLevel(loglevel)
+	Logger.SetLevel(level)
 	for _, hook := range hooks {
 		Logger.Hooks.Add(hook)
 	}
@@ -49,8 +52,8 @@ func setLog(loglevel string, defaultField map[string]interface{}, hooks ...logru
 }
 
 //Init 初始化默认的log对象
-func Init(loglevel string, defaultField map[string]interface{}) {
-	defaultlog = setLog(loglevel, defaultField)
+func Init(loglevel string, defaultField map[string]interface{}, hooks ...logrus.Hook) {
+	defaultlog = setLog(loglevel, defaultField, hooks...)
 }
 
 //Trace 默认log打印Trace级别信息
