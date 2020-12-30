@@ -28,7 +28,10 @@ func main() {
 
 ## 初始化
 
-初始化可以设置log等级,默认字段的值,输出,以及钩子
+初始化可以设置log等级,默认字段的值,输出,以及钩子,初始化有两个方法:
+
++ `Init(loglevel string, defaultField map[string]interface{}, hooks ...logrus.Hook)` 初始化默认的log对象
++ `InitWithOutput(loglevel string, defaultField map[string]interface{}, output io.Writer, hooks ...logrus.Hook)`初始化默认的log对象并指定log的输出位置
 
 ```golang
 
@@ -51,7 +54,7 @@ func main() {
             logrus.WarnLevel,
         },
     }
-    log.Init("WARN", log.Dict{"d": 3}, ioutil.Discard, &hook)
+    log.InitWithOutput("WARN", log.Dict{"d": 3}, ioutil.Discard, &hook)
     log.Info("test")
     log.Warn("qweqwr", log.Dict{"a": 1})
 }

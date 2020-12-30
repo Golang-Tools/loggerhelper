@@ -55,8 +55,13 @@ func setLog(loglevel string, defaultField map[string]interface{}, output io.Writ
 	return log
 }
 
-//Init 初始化默认的log对象
-func Init(loglevel string, defaultField map[string]interface{}, output io.Writer, hooks ...logrus.Hook) {
+//Init 初始化默认的log对象,
+func Init(loglevel string, defaultField map[string]interface{}, hooks ...logrus.Hook) {
+	defaultlog = setLog(loglevel, defaultField, nil, hooks...)
+}
+
+//InitWithOutput 初始化默认的log对象并指定log的输出位置
+func InitWithOutput(loglevel string, defaultField map[string]interface{}, output io.Writer, hooks ...logrus.Hook) {
 	defaultlog = setLog(loglevel, defaultField, output, hooks...)
 }
 
