@@ -5,8 +5,8 @@
 ## 特性
 
 + 开袋可用,即便没有进行设置也已经设置为使用json格式打印消息.
-+ WithFields可选,可以是0到任意多个
-+ 可以通过`log.Init(loglevel string, defaultField map[string]interface{}, hooks ...logrus.Hook)`设置默认logger
++ `WithExtFields`可选,可以是0到任意多个
++ 可以通过`log.Init(opts ...Option)`设置默认logger
 + 支持`hook`
 
 ## 基本用法
@@ -30,8 +30,7 @@ func main() {
 
 初始化可以设置log等级,默认字段的值,输出,以及钩子,初始化有两个方法:
 
-+ `Init(loglevel string, defaultField map[string]interface{}, hooks ...logrus.Hook)` 初始化默认的log对象
-+ `InitWithOutput(loglevel string, defaultField map[string]interface{}, output io.Writer, hooks ...logrus.Hook)`初始化默认的log对象并指定log的输出位置
++ `Init(WithLevel(loglevel),...)` 初始化默认的log对象
 
 ```golang
 
@@ -54,7 +53,7 @@ func main() {
             logrus.WarnLevel,
         },
     }
-    log.InitWithOutput("WARN", log.Dict{"d": 3}, ioutil.Discard, &hook)
+    log.Init(WithLevel("WARN"), WithExtFields(log.Dict{"d": 3}), WithOutput(ioutil.Discard), AddHooks(hook))
     log.Info("test")
     log.Warn("qweqwr", log.Dict{"a": 1})
 }

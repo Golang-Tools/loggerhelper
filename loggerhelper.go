@@ -1,9 +1,6 @@
 package loggerhelper
 
 import (
-	"fmt"
-	"io"
-
 	logrus "github.com/sirupsen/logrus"
 )
 
@@ -23,46 +20,51 @@ var Logger = New()
 //默认的Log对象
 var defaultlog *logrus.Entry
 
-//ParseLevel 将字符串转为`logrus.Level`,未知的字符串默认匹配为"logrus.DebugLevel"
-func ParseLevel(loglevel string) logrus.Level {
-	level, err := logrus.ParseLevel(loglevel)
-	if err != nil {
-		fmt.Printf("未知的等级`%s`,使用默认值`Debug`\n", loglevel)
-		return logrus.DebugLevel
+//Init 初始化默认的log对象
+//@params opts ...Option 初始化使用的参数,具体可以看options.go文件
+func Init(opts ...Option) {
+	options := DefaultOpts
+	for _, opt := range opts {
+		opt.Apply(&options)
 	}
-	return level
-}
-
-//SetLog 设置log行为
-func setLog(loglevel string, defaultField map[string]interface{}, output io.Writer, hooks ...logrus.Hook) *logrus.Entry {
-	if output != nil {
-		Logger.SetOutput(output)
+	if options.Output != nil {
+		Logger.SetOutput(options.Output)
 	}
-	Logger.SetFormatter(&logrus.JSONFormatter{
-		FieldMap: logrus.FieldMap{
-			logrus.FieldKeyTime:  "time",
-			logrus.FieldKeyLevel: "level",
-			logrus.FieldKeyMsg:   "event",
-			logrus.FieldKeyFunc:  "caller",
-		}})
-
-	level := ParseLevel(loglevel)
-	Logger.SetLevel(level)
-	for _, hook := range hooks {
+	var fmter logrus.Formatter
+	if options.Type == FormatType_Text {
+		_fmter := &logrus.TextFormatter{}
+		if options.DisableTimeField {
+			_fmter.DisableTimestamp = true
+		}
+		if options.TimeFormat != "" {
+			_fmter.TimestampFormat = options.TimeFormat
+		}
+		if options.DefaultFieldMap != nil {
+			_fmter.FieldMap = options.DefaultFieldMap
+		}
+		fmter = _fmter
+	} else {
+		_fmter := &logrus.JSONFormatter{}
+		if options.DisableTimeField {
+			_fmter.DisableTimestamp = true
+		}
+		if options.TimeFormat != "" {
+			_fmter.TimestampFormat = options.TimeFormat
+		}
+		if options.DefaultFieldMap != nil {
+			_fmter.FieldMap = options.DefaultFieldMap
+		}
+		fmter = _fmter
+	}
+	Logger.SetFormatter(fmter)
+	Logger.SetLevel(options.Level)
+	for _, hook := range options.Hooks {
 		Logger.Hooks.Add(hook)
 	}
-	log := Logger.WithFields(defaultField)
-	return log
-}
-
-//Init 初始化默认的log对象,
-func Init(loglevel string, defaultField map[string]interface{}, hooks ...logrus.Hook) {
-	defaultlog = setLog(loglevel, defaultField, nil, hooks...)
-}
-
-//InitWithOutput 初始化默认的log对象并指定log的输出位置
-func InitWithOutput(loglevel string, defaultField map[string]interface{}, output io.Writer, hooks ...logrus.Hook) {
-	defaultlog = setLog(loglevel, defaultField, output, hooks...)
+	if options.ExtFields == nil || len(options.ExtFields) == 0 {
+		return
+	}
+	defaultlog = Logger.WithFields(options.ExtFields)
 }
 
 //Trace 默认log打印Trace级别信息

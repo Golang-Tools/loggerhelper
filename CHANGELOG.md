@@ -1,3 +1,17 @@
+# 0.0.4
+
+## 修改接口
+
++ 使用`Opt`的形式统一Init接口
++ 增加对`TextFormat`的支持
++ 增加对设置时间戳字符串的格式的支持
++ 增加对是否输出时间的选项
++ 增加对修改默认字段(time,level,event,logrus_error,caller,file)字段名的支持
+
+## 依赖更新
+
+更新到`github.com/sirupsen/logrus@v1.8.1`
+
 # 0.0.3
 
 ## 修改接口
