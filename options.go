@@ -5,6 +5,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/Golang-Tools/optparams"
 	logrus "github.com/sirupsen/logrus"
 )
 
@@ -42,47 +43,27 @@ var DefaultOpts = Options{
 		logrus.FieldKeyFunc:        "caller",
 		logrus.FieldKeyFile:        "file",
 	},
-	ExtFields: map[string]interface{}{},
+	ExtFields: map[string]interface{}{"package": "loggerhelper"},
 	Hooks:     []logrus.Hook{},
 }
 
-// Option configures how we set up the connection.
-type Option interface {
-	Apply(*Options)
-}
-
-// func (emptyOption) apply(*Options) {}
-type funcOption struct {
-	f func(*Options)
-}
-
-func (fo *funcOption) Apply(do *Options) {
-	fo.f(do)
-}
-
-func newFuncOption(f func(*Options)) *funcOption {
-	return &funcOption{
-		f: f,
-	}
-}
-
-//WithTextFormat Init函数的参数,用于设置使用text格式替换json格式
-func WithTextFormat() Option {
-	return newFuncOption(func(o *Options) {
+//WithTextFormat SetLogger函数的参数,用于设置使用text格式替换json格式
+func WithTextFormat() optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
 		o.Type = FormatType_Text
 	})
 }
 
-//WithDisableTimeField Init函数的参数,用于设置使用text格式替换json格式
-func WithDisableTimeField() Option {
-	return newFuncOption(func(o *Options) {
+//WithDisableTimeField SetLogger函数的参数,用于设置使用text格式替换json格式
+func WithDisableTimeField() optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
 		o.DisableTimeField = true
 	})
 }
 
-//WithTimeFormat Init函数的参数,用于设置使用指定的时间解析格式,默认为RFC3339Nano
-func WithTimeFormat(TimeFormat string) Option {
-	return newFuncOption(func(o *Options) {
+//WithTimeFormat SetLogger函数的参数,用于设置使用指定的时间解析格式,默认为RFC3339Nano
+func WithTimeFormat(TimeFormat string) optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
 		o.TimeFormat = TimeFormat
 	})
 }
@@ -97,16 +78,16 @@ func parseLevel(loglevel string) logrus.Level {
 	return level
 }
 
-//WithLevel Init函数的参数,用于设置log等级
-func WithLevel(loglevel string) Option {
-	return newFuncOption(func(o *Options) {
+//WithLevel SetLogger函数的参数,用于设置log等级
+func WithLevel(loglevel string) optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
 		o.Level = parseLevel(loglevel)
 	})
 }
 
-//AddHooks Init函数的参数,用于增加钩子
-func AddHooks(hooks ...logrus.Hook) Option {
-	return newFuncOption(func(o *Options) {
+//AddHooks SetLogger函数的参数,用于增加钩子
+func AddHooks(hooks ...logrus.Hook) optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
 		if o.Hooks == nil {
 			o.Hooks = []logrus.Hook{}
 		}
@@ -114,16 +95,16 @@ func AddHooks(hooks ...logrus.Hook) Option {
 	})
 }
 
-//WithDefaultFieldMap Init函数的参数,用于设置默认字段的新命名
-func WithDefaultFieldMap(fm logrus.FieldMap) Option {
-	return newFuncOption(func(o *Options) {
+//WithDefaultFieldMap SetLogger函数的参数,用于设置默认字段的新命名
+func WithDefaultFieldMap(fm logrus.FieldMap) optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
 		o.DefaultFieldMap = fm
 	})
 }
 
-//AddExtField Init函数的参数,用于增加扩展字段
-func AddExtField(field string, value interface{}) Option {
-	return newFuncOption(func(o *Options) {
+//AddExtField SetLogger函数的参数,用于增加扩展字段
+func AddExtField(field string, value interface{}) optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
 		if o.ExtFields == nil {
 			o.ExtFields = map[string]interface{}{field: value}
 		} else {
@@ -132,9 +113,16 @@ func AddExtField(field string, value interface{}) Option {
 	})
 }
 
-//WithExtFields Init函数的参数,用于设置扩展字段
-func WithExtFields(extFields map[string]interface{}) Option {
-	return newFuncOption(func(o *Options) {
+//WithExtFields SetLogger函数的参数,用于重置扩展字段
+func WithExtFields(extFields map[string]interface{}) optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
+		o.ExtFields = extFields
+	})
+}
+
+//WithAddExtFields SetLogger函数的参数,用于添加设置扩展字段
+func WithAddExtFields(extFields map[string]interface{}) optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
 		if o.ExtFields == nil || len(o.ExtFields) == 0 {
 			o.ExtFields = extFields
 		} else {
@@ -145,9 +133,9 @@ func WithExtFields(extFields map[string]interface{}) Option {
 	})
 }
 
-//WithOutput Init函数的参数,用于设置log的写入io
-func WithOutput(writer io.Writer) Option {
-	return newFuncOption(func(o *Options) {
+//WithOutput SetLogger函数的参数,用于设置log的写入io
+func WithOutput(writer io.Writer) optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
 		o.Output = writer
 	})
 }

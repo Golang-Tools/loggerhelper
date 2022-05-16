@@ -1,7 +1,25 @@
 package loggerhelper
 
 import (
+	"sync"
+
+	"github.com/Golang-Tools/optparams"
 	logrus "github.com/sirupsen/logrus"
+)
+
+// 全局变量
+
+var (
+	//Logger 默认的logger
+	logger *logrus.Logger
+
+	//默认的Log对象
+	defaultlog *logrus.Entry
+
+	//锁对象,防止重置出现冲突
+	locker *sync.Mutex
+
+	dopts *Options
 )
 
 //Dict 简化键值对的写法
@@ -14,21 +32,30 @@ func New() *logrus.Logger {
 	return log
 }
 
-//Logger 默认的logger
-var Logger = New()
+//init 模块初始化
+// 赋值默认锁和logger
+func init() {
+	logger = New()
+	locker = &sync.Mutex{}
+	_opts := DefaultOpts
+	dopts = &_opts
+	SetLogger()
 
-//默认的Log对象
-var defaultlog *logrus.Entry
+}
 
-//Init 初始化默认的log对象
+func GetLogger() *logrus.Logger {
+	return logger
+}
+
+//SetLogger 设置logger
 //@params opts ...Option 初始化使用的参数,具体可以看options.go文件
-func Init(opts ...Option) {
-	options := DefaultOpts
-	for _, opt := range opts {
-		opt.Apply(&options)
-	}
+func SetLogger(opts ...optparams.Option[Options]) {
+	locker.Lock()
+	defer locker.Unlock()
+	options := optparams.GetOption(dopts, opts...)
+	dopts = options
 	if options.Output != nil {
-		Logger.SetOutput(options.Output)
+		logger.SetOutput(options.Output)
 	}
 	var fmter logrus.Formatter
 	if options.Type == FormatType_Text {
@@ -56,15 +83,15 @@ func Init(opts ...Option) {
 		}
 		fmter = _fmter
 	}
-	Logger.SetFormatter(fmter)
-	Logger.SetLevel(options.Level)
+	logger.SetFormatter(fmter)
+	logger.SetLevel(options.Level)
 	for _, hook := range options.Hooks {
-		Logger.Hooks.Add(hook)
+		logger.Hooks.Add(hook)
 	}
 	if options.ExtFields == nil || len(options.ExtFields) == 0 {
 		return
 	}
-	defaultlog = Logger.WithFields(options.ExtFields)
+	defaultlog = logger.WithFields(options.ExtFields)
 }
 
 //Trace 默认log打印Trace级别信息
@@ -76,15 +103,15 @@ func Trace(message string, fields ...map[string]interface{}) {
 		switch fieldlen {
 		case 0:
 			{
-				Logger.Trace(message)
+				logger.Trace(message)
 			}
 		case 1:
 			{
-				Logger.WithFields(fields[0]).Trace(message)
+				logger.WithFields(fields[0]).Trace(message)
 			}
 		default:
 			{
-				l := Logger.WithFields(fields[0])
+				l := logger.WithFields(fields[0])
 				for _, field := range fields[1:] {
 					l = l.WithFields(field)
 				}
@@ -118,15 +145,15 @@ func Debug(message string, fields ...map[string]interface{}) {
 		switch fieldlen {
 		case 0:
 			{
-				Logger.Debug(message)
+				logger.Debug(message)
 			}
 		case 1:
 			{
-				Logger.WithFields(fields[0]).Debug(message)
+				logger.WithFields(fields[0]).Debug(message)
 			}
 		default:
 			{
-				l := Logger.WithFields(fields[0])
+				l := logger.WithFields(fields[0])
 				for _, field := range fields[1:] {
 					l = l.WithFields(field)
 				}
@@ -160,15 +187,15 @@ func Info(message string, fields ...map[string]interface{}) {
 		switch fieldlen {
 		case 0:
 			{
-				Logger.Info(message)
+				logger.Info(message)
 			}
 		case 1:
 			{
-				Logger.WithFields(fields[0]).Info(message)
+				logger.WithFields(fields[0]).Info(message)
 			}
 		default:
 			{
-				l := Logger.WithFields(fields[0])
+				l := logger.WithFields(fields[0])
 				for _, field := range fields[1:] {
 					l = l.WithFields(field)
 				}
@@ -202,15 +229,15 @@ func Warn(message string, fields ...map[string]interface{}) {
 		switch fieldlen {
 		case 0:
 			{
-				Logger.Warn(message)
+				logger.Warn(message)
 			}
 		case 1:
 			{
-				Logger.WithFields(fields[0]).Warn(message)
+				logger.WithFields(fields[0]).Warn(message)
 			}
 		default:
 			{
-				l := Logger.WithFields(fields[0])
+				l := logger.WithFields(fields[0])
 				for _, field := range fields[1:] {
 					l = l.WithFields(field)
 				}
@@ -244,15 +271,15 @@ func Error(message string, fields ...map[string]interface{}) {
 		switch fieldlen {
 		case 0:
 			{
-				Logger.Error(message)
+				logger.Error(message)
 			}
 		case 1:
 			{
-				Logger.WithFields(fields[0]).Error(message)
+				logger.WithFields(fields[0]).Error(message)
 			}
 		default:
 			{
-				l := Logger.WithFields(fields[0])
+				l := logger.WithFields(fields[0])
 				for _, field := range fields[1:] {
 					l = l.WithFields(field)
 				}
@@ -286,15 +313,15 @@ func Fatal(message string, fields ...map[string]interface{}) {
 		switch fieldlen {
 		case 0:
 			{
-				Logger.Fatal(message)
+				logger.Fatal(message)
 			}
 		case 1:
 			{
-				Logger.WithFields(fields[0]).Fatal(message)
+				logger.WithFields(fields[0]).Fatal(message)
 			}
 		default:
 			{
-				l := Logger.WithFields(fields[0])
+				l := logger.WithFields(fields[0])
 				for _, field := range fields[1:] {
 					l = l.WithFields(field)
 				}
@@ -328,15 +355,15 @@ func Panic(message string, fields ...map[string]interface{}) {
 		switch fieldlen {
 		case 0:
 			{
-				Logger.Panic(message)
+				logger.Panic(message)
 			}
 		case 1:
 			{
-				Logger.WithFields(fields[0]).Panic(message)
+				logger.WithFields(fields[0]).Panic(message)
 			}
 		default:
 			{
-				l := Logger.WithFields(fields[0])
+				l := logger.WithFields(fields[0])
 				for _, field := range fields[1:] {
 					l = l.WithFields(field)
 				}
