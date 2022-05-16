@@ -18,5 +18,6 @@ func main() {
 
 	Logger1.Debug("test logger1")
 	Logger2.Debug("test logger2")
-
+	log.Set(log.WithExtFields(log.Dict{}))
+	log.Warn("test no ext fields")
 }

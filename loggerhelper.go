@@ -102,6 +102,7 @@ func Set(opts ...optparams.Option[Options]) {
 		logger.Hooks.Add(hook)
 	}
 	if options.ExtFields == nil || len(options.ExtFields) == 0 {
+		defaultlog = nil
 		return
 	}
 	defaultlog = logger.WithFields(options.ExtFields)

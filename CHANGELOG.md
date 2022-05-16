@@ -1,3 +1,9 @@
+# 2.0.1
+
+## bug修复
+
++ 修复`ExtFields`置空时的行为,`ExtFields`为空字典时`defaultlog`会被置为`nil`
+
 # 2.0.0
 
 V2版本是对V0版本的重构,允许修改全局logger,并允许将logger输出
