@@ -39,17 +39,30 @@ func init() {
 	locker = &sync.Mutex{}
 	_opts := DefaultOpts
 	dopts = &_opts
-	SetLogger()
+	Set()
 
 }
 
+//GetLogger 获取模块维护得logrus.Logger对象
+//该接口用于导出logger给其他模块使用
 func GetLogger() *logrus.Logger {
 	return logger
 }
 
-//SetLogger 设置logger
+//Export 导出Log对象
+//该函数用于导出当前的默认logrus.Entry给特定模块使用
+func Export() *Log {
+	if defaultlog == nil {
+		return nil
+	}
+	l := new(Log)
+	l.log = defaultlog
+	return l
+}
+
+//Set 设置logger
 //@params opts ...Option 初始化使用的参数,具体可以看options.go文件
-func SetLogger(opts ...optparams.Option[Options]) {
+func Set(opts ...optparams.Option[Options]) {
 	locker.Lock()
 	defer locker.Unlock()
 	options := optparams.GetOption(dopts, opts...)

@@ -43,7 +43,7 @@ var DefaultOpts = Options{
 		logrus.FieldKeyFunc:        "caller",
 		logrus.FieldKeyFile:        "file",
 	},
-	ExtFields: map[string]interface{}{"package": "loggerhelper"},
+	ExtFields: map[string]interface{}{},
 	Hooks:     []logrus.Hook{},
 }
 

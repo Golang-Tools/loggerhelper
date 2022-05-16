@@ -6,10 +6,17 @@ import (
 
 func main() {
 	log.Info("test1")
-	log.SetLogger(log.WithLevel("WARN"), log.WithExtFields(log.Dict{"d": 3}))
+	log.Set(log.WithLevel("WARN"), log.WithExtFields(log.Dict{"app": "l1"}))
 	log.Info("test2")
 	log.Warn("test3")
-	log.SetLogger(log.WithLevel("Debug"), log.WithExtFields(log.Dict{"e": 3}))
+	Logger1 := log.Export()
+
+	log.Set(log.WithLevel("Debug"), log.WithExtFields(log.Dict{"app": "l2"}))
 	log.Debug("test4", log.Dict{"a": 1})
 	log.Warn("test5", log.Dict{"a": 1})
+	Logger2 := log.Export()
+
+	Logger1.Debug("test logger1")
+	Logger2.Debug("test logger2")
+
 }
