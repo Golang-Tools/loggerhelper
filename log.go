@@ -8,6 +8,12 @@ type Log struct {
 	log *logrus.Entry
 }
 
+//GetLogger 获取模块维护得logrus.Logger对象
+//该接口用于导出logger给其他模块使用
+func (lg *Log) GetLogger() *logrus.Entry {
+	return lg.log
+}
+
 //Trace 打印Trace级别信息
 //@params message string 事件消息
 //@params fields ...map[string]interface{} 信息字段

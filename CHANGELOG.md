@@ -1,3 +1,9 @@
+# 2.0.2
+
+## 新增接口
+
++ 增加Log对象的`GetLogger`接口用于获取`logrus.Entry`对象
+
 # 2.0.1
 
 ## bug修复
