@@ -6,6 +6,16 @@
 
 V4版本使用标准库 `log/slog` 重写,**不依赖 logrus**(仅依赖 `github.com/Golang-Tools/optparams`),面向 go 1.22+。需要继续使用 logrus 的实现请使用 `/v3`(见 [v3 分支](https://github.com/Golang-Tools/loggerhelper/tree/v3))或 `/v2`。
 
+## 如何选择版本
+
+| 版本 | 底层 | 适用场景 | 引入路径 |
+| --- | --- | --- | --- |
+| **v4(当前,推荐)** | 标准库 `log/slog`,仅依赖 `optparams` | 新项目首选;要求 go 1.22+ | `github.com/Golang-Tools/loggerhelper/v4`(master) |
+| v3 | logrus(现代化修复,go 1.22+) | 存量项目仍重度依赖 logrus 的 hook 生态 | `github.com/Golang-Tools/loggerhelper/v3`(v3 分支) |
+| v2 | logrus(旧,go 1.18+) | 最低 go 版本兼容 | `github.com/Golang-Tools/loggerhelper/v2`(历史 tag) |
+
+> 面向应用的高层接口(日志函数、`Set`、`Export`、各 `With*` 选项)在 v2/v3/v4 之间保持一致。只要你不依赖 logrus 的 hook,**新项目直接引 v4、存量项目通常只改 import 路径即可**;需要改动的地方见文末"迁移自 v2 / v3"。
+
 ## 特性
 
 + 开袋可用,默认即使用 json 格式打印消息
@@ -171,3 +181,50 @@ log.Set(log.WithReplaceAttr(func(groups []string, a slog.Attr) slog.Attr {
 | `WithDefaultFieldMap(logrus.FieldMap)` | 默认内置 v3 兼容风格,或用 `WithReplaceAttr` 自定义 |
 | `Options.Level` (logrus.Level) | `Options.Level` (slog.Level) |
 | `New() *logrus.Logger` | `New() *slog.Logger` |
+
+### 示例:基础用法几乎无需改动
+
+```go
+// v2/v3(logrus)
+import log "github.com/Golang-Tools/loggerhelper/v3"
+log.Set(log.WithLevel("WARN"), log.WithExtFields(log.Dict{"app": "svc"}))
+log.Warn("oops", log.Dict{"id": 1})
+
+// v4(slog):仅换 import 路径,API 一致
+import log "github.com/Golang-Tools/loggerhelper/v4"
+log.Set(log.WithLevel("WARN"), log.WithExtFields(log.Dict{"app": "svc"}))
+log.Warn("oops", log.Dict{"id": 1})
+// 两者输出均为 {"time":...,"level":"warning","event":"oops","app":"svc","id":1}
+```
+
+### 示例:hook → handler 中间件
+
+logrus 的 hook 常见用法是"把 warn 及更严重的日志额外写一份到 stderr",v4 中可用内置的 fan-out + 带等级的 handler 等价实现:
+
+```go
+// v2/v3(logrus):writer.Hook 把 warn 及以上额外写一份到 stderr
+hook := &writer.Hook{Writer: os.Stderr, LogLevels: []logrus.Level{
+    logrus.PanicLevel, logrus.FatalLevel, logrus.ErrorLevel, logrus.WarnLevel,
+}}
+log.Set(log.AddHooks(hook))
+
+// v4(slog):highH 自带 warn 阈值,fan-out 让它与主输出并存
+highH := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn})
+log.Set(log.WithFanoutOutput(highH))
+```
+
+若想"分流替换"(warn 及以上不再进主输出、单独交给某 handler),则用按级别路由:
+
+```go
+highH := slog.NewJSONHandler(os.Stderr, nil)
+log.Set(log.WithLevelRoute(slog.LevelWarn, highH))
+```
+
+### 示例:GetLogger 返回类型
+
+`GetLogger()` 由 `*logrus.Logger` 变为 `*slog.Logger`,用于接入接受 `*slog.Logger` 的第三方组件;若对方只接受 logrus,可在 v4 侧做一层薄适配,或继续使用 v3。
+
+```go
+// v4:返回 *slog.Logger
+l := log.GetLogger() // *slog.Logger
+```
