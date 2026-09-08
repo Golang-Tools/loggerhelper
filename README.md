@@ -1,12 +1,12 @@
-# loggerhelper/V2
+# loggerhelper/V3
 
 `github.com/sirupsen/logrus`的帮助程序.用于快速设置,开袋可用.
 
 该模块定位为基础组件,如果需要用它就只用它比较好.
 
-V2版本是对V0版本的重构,允许修改全局logger,并允许将logger输出
+V3版本在保持V2面向应用接口不变的前提下,对基于logrus的实现做现代化与缺陷修复(并发安全/hook重建/caller生效等).
 
-V2版本针对go 1.18+,使用泛型语法.低版本还是继续使用v0版本
+V3版本针对go 1.22+,依赖`optparams` v1.0.0.低版本请继续使用v2或v0版本
 
 ## 特性
 
@@ -26,7 +26,7 @@ V2版本针对go 1.18+,使用泛型语法.低版本还是继续使用v0版本
 package main
 
 import (
-    log "github.com/Golang-Tools/loggerhelper"
+    log "github.com/Golang-Tools/loggerhelper/v3"
 )
 func main() {
     log.Info("test")
@@ -45,7 +45,7 @@ func main() {
 package main
 
 import (
-    log "github.com/Golang-Tools/loggerhelper/v2"
+    log "github.com/Golang-Tools/loggerhelper/v3"
     "io/ioutil"
     "os"
     "github.com/sirupsen/logrus"
@@ -69,15 +69,27 @@ func main() {
             logrus.WarnLevel,
         },
     }
-    log.SetLogger(WithLevel("WARN"), WithExtFields(log.Dict{"d": 3}), WithOutput(ioutil.Discard), AddHooks(hook))
+    log.Set(log.WithLevel("WARN"), log.WithExtFields(log.Dict{"d": 3}), log.WithOutput(ioutil.Discard), log.AddHooks(hook))
     log.Info("test")
     log.Warn("qweqwr", log.Dict{"a": 1})
 }
 ```
 
+## 输出调用方信息
+
+默认不输出调用方信息.通过`WithReportCaller()`可以开启,开启后日志会带上`caller`(函数名)与`file`(文件:行号)字段,且会正确指向业务调用处而非本模块内部:
+
+```go
+log.Set(log.WithReportCaller())
+log.Info("with caller")
+// {"caller":"main.main","event":"with caller","file":".../main.go:12","level":"info",...}
+```
+
 ## 获取logger
 
 获取logger接口`GetLogger() *logrus.Logger`可以获取到当前的logger,这主要用于导出给其他模块使用.比如用于设置gin的log
+
+注意:`GetLogger()`返回的是调用时刻的logger快照,之后调用`log.Set()`不会改变已取走的这个对象.需要跟随后续动态调整时请使用包级日志函数,或`Export()`得到的`Log`对象(其等级/output等仍受后续`log.Set`影响)
 
 ```go
 app.Use(ginlogrus.Logger(log.GetLogger()), gin.Recovery())

@@ -1,7 +1,6 @@
 package loggerhelper
 
 import (
-	"fmt"
 	"io"
 	"time"
 
@@ -25,6 +24,7 @@ type Options struct {
 	DisableTimeField bool
 	TimeFormat       string
 	Level            logrus.Level
+	ReportCaller     bool
 	DefaultFieldMap  logrus.FieldMap
 	ExtFields        map[string]interface{}
 	Output           io.Writer
@@ -68,20 +68,22 @@ func WithTimeFormat(TimeFormat string) optparams.Option[Options] {
 	})
 }
 
-//parseLevel 将字符串转为`logrus.Level`,未知的字符串默认匹配为"logrus.DebugLevel"
-func parseLevel(loglevel string) logrus.Level {
-	level, err := logrus.ParseLevel(loglevel)
-	if err != nil {
-		fmt.Printf("未知的等级`%s`,使用默认值`Debug`\n", loglevel)
-		return logrus.DebugLevel
-	}
-	return level
-}
-
 //WithLevel SetLogger函数的参数,用于设置log等级
+//未知的等级字符串会被忽略并保持原有等级不变
 func WithLevel(loglevel string) optparams.Option[Options] {
 	return optparams.NewFuncOption(func(o *Options) {
-		o.Level = parseLevel(loglevel)
+		level, err := logrus.ParseLevel(loglevel)
+		if err != nil {
+			return
+		}
+		o.Level = level
+	})
+}
+
+//WithReportCaller SetLogger函数的参数,用于开启调用方信息(caller/file)的输出
+func WithReportCaller() optparams.Option[Options] {
+	return optparams.NewFuncOption(func(o *Options) {
+		o.ReportCaller = true
 	})
 }
 
@@ -105,11 +107,13 @@ func WithDefaultFieldMap(fm logrus.FieldMap) optparams.Option[Options] {
 //AddExtField SetLogger函数的参数,用于增加扩展字段
 func AddExtField(field string, value interface{}) optparams.Option[Options] {
 	return optparams.NewFuncOption(func(o *Options) {
-		if o.ExtFields == nil {
-			o.ExtFields = map[string]interface{}{field: value}
-		} else {
-			o.ExtFields[field] = value
+		// 复制到新map,避免污染 GetOption 浅拷贝下共享的默认map
+		nm := make(map[string]interface{}, len(o.ExtFields)+1)
+		for k, v := range o.ExtFields {
+			nm[k] = v
 		}
+		nm[field] = value
+		o.ExtFields = nm
 	})
 }
 
@@ -123,13 +127,15 @@ func WithExtFields(extFields map[string]interface{}) optparams.Option[Options] {
 //WithAddExtFields SetLogger函数的参数,用于添加设置扩展字段
 func WithAddExtFields(extFields map[string]interface{}) optparams.Option[Options] {
 	return optparams.NewFuncOption(func(o *Options) {
-		if o.ExtFields == nil || len(o.ExtFields) == 0 {
-			o.ExtFields = extFields
-		} else {
-			for field, value := range extFields {
-				o.ExtFields[field] = value
-			}
+		// 复制到新map,避免污染 GetOption 浅拷贝下共享的默认map
+		nm := make(map[string]interface{}, len(o.ExtFields)+len(extFields))
+		for k, v := range o.ExtFields {
+			nm[k] = v
 		}
+		for k, v := range extFields {
+			nm[k] = v
+		}
+		o.ExtFields = nm
 	})
 }
 

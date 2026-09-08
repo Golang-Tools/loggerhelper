@@ -1,9 +1,9 @@
-module github.com/Golang-Tools/loggerhelper/v2
+module github.com/Golang-Tools/loggerhelper/v3
 
-go 1.18
+go 1.22
 
 require (
-	github.com/Golang-Tools/optparams v0.0.1
+	github.com/Golang-Tools/optparams v1.0.0
 	github.com/sirupsen/logrus v1.8.1
 )
 

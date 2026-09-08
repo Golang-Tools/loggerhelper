@@ -1,7 +1,7 @@
 package main
 
 import (
-	log "github.com/Golang-Tools/loggerhelper/v2"
+	log "github.com/Golang-Tools/loggerhelper/v3"
 )
 
 func main() {
@@ -20,4 +20,7 @@ func main() {
 	Logger2.Debug("test logger2")
 	log.Set(log.WithExtFields(log.Dict{}))
 	log.Warn("test no ext fields")
+
+	log.Set(log.WithReportCaller(), log.WithExtFields(log.Dict{}))
+	log.Info("with caller info")
 }
